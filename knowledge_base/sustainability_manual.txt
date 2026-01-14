@@ -1,0 +1,178 @@
+# EcoMind Sustainability & Energy Efficiency Knowledge Base
+# This file is loaded by the RAG system to provide context-aware responses
+
+# ===========================================
+# HVAC SYSTEMS & TEMPERATURE OPTIMIZATION
+# ===========================================
+
+To optimize HVAC systems in residential buildings, maintain a setpoint of 20°C in winter and 25°C in summer.
+Every 1°C reduction in heating setpoint can save approximately 3% on heating energy costs.
+Programmable thermostats can reduce HVAC energy consumption by 10-30% when properly configured.
+Heat pumps are 2-3 times more efficient than traditional electric resistance heating.
+Zoned HVAC systems allow different temperatures in different rooms, reducing energy waste by up to 30%.
+Regular HVAC filter replacement (every 1-3 months) improves efficiency by 5-15%.
+Ductwork leaks can waste 20-30% of heated or cooled air; sealing ducts improves efficiency significantly.
+Variable speed HVAC motors consume 50-75% less energy than single-speed motors.
+Ceiling fans can make a room feel 4°C cooler, allowing higher AC setpoints and 4-8% energy savings.
+Night setback (lowering temperature at night) saves 5-10% on heating costs annually.
+
+# ===========================================
+# PREDICTIVE MAINTENANCE & EQUIPMENT
+# ===========================================
+
+Predictive maintenance of furnaces can reduce energy waste by up to 15%.
+Equipment running at suboptimal efficiency due to lack of maintenance can waste 10-25% more energy.
+Boiler efficiency drops by 1% for every 20°C increase in flue gas temperature above optimal.
+Dirty condenser coils can increase compressor energy consumption by 30%.
+Refrigerant leaks reduce cooling efficiency by 5-20% depending on severity.
+Motors operating at partial load are significantly less efficient; variable frequency drives (VFDs) help.
+Building Management Systems (BMS) can optimize equipment scheduling and reduce energy by 10-20%.
+Fault detection and diagnostics (FDD) systems can identify HVAC problems before they cause major inefficiency.
+
+# ===========================================
+# SOLAR ENERGY & RENEWABLE SYSTEMS
+# ===========================================
+
+Solar generation efficiency drops significantly when panel surface temperature exceeds 45°C.
+Solar panels lose about 0.5% efficiency for every 1°C above 25°C (standard test conditions).
+Optimal solar panel tilt angle is approximately equal to the latitude of the installation location.
+East-west facing solar installations produce 15-20% less energy than south-facing (in northern hemisphere).
+Solar panel soiling (dust, dirt, bird droppings) can reduce output by 5-25%.
+Battery storage systems typically have round-trip efficiency of 85-95%.
+Time-of-use electricity rates make solar+storage economically attractive by shifting energy to peak hours.
+Net metering allows excess solar energy to be sold back to the grid, improving ROI.
+Solar thermal systems for water heating can be 70-80% efficient, higher than PV panels.
+
+# ===========================================
+# APPLIANCE EFFICIENCY & SCHEDULING
+# ===========================================
+
+Dishwashers should only be run at full load during off-peak hours (10 PM - 6 AM) to minimize grid strain.
+ENERGY STAR appliances use 10-50% less energy than standard models.
+Refrigerators account for 13-20% of household electricity; newer models use 40% less than 10-year-old units.
+Washing machines use 90% of their energy heating water; cold water washing saves significant energy.
+Dryers are energy-intensive; air drying clothes can save 2-4 kWh per load.
+Standby power (phantom load) from electronics accounts for 5-10% of residential electricity use.
+Smart power strips can eliminate standby power by cutting power to devices when not in use.
+LED lighting uses 75% less energy than incandescent bulbs and lasts 25 times longer.
+Cooking with lids on pots reduces energy use by 14%.
+Microwaves use 50-80% less energy than conventional ovens for reheating and small meals.
+Induction cooktops are 85-90% efficient compared to 65-70% for gas and 70-75% for electric coils.
+
+# ===========================================
+# BUILDING ENVELOPE & INSULATION
+# ===========================================
+
+Proper insulation can reduce heating and cooling energy needs by 40-60%.
+Air leakage accounts for 25-40% of heating and cooling energy loss in typical homes.
+Double-pane windows reduce heat loss by 50% compared to single-pane.
+Low-E window coatings reduce heat transfer by 30-50% while maintaining visible light transmission.
+Weatherstripping doors and windows is one of the most cost-effective energy improvements.
+Attic insulation provides the highest ROI among insulation upgrades.
+Cool roofs (reflective surfaces) can reduce cooling costs by 10-30% in hot climates.
+Green roofs provide insulation and can reduce HVAC energy by 25% while managing stormwater.
+Thermal mass (concrete, brick) can store heat and reduce temperature swings, lowering HVAC demand.
+
+# ===========================================
+# HUMIDITY & VENTILATION
+# ===========================================
+
+Humidity levels above 60% require dehumidification, which consumes significant energy; consider natural ventilation.
+Optimal indoor humidity is 30-50% for comfort and health.
+Each 10% reduction in humidity can make you feel 1-2°C cooler.
+Heat recovery ventilators (HRV) capture 70-80% of heat from exhaust air.
+Energy recovery ventilators (ERV) also transfer humidity, ideal for humid climates.
+Natural ventilation (cross-ventilation) can eliminate AC need when outdoor conditions permit.
+Bathroom and kitchen exhaust fans should be used sparingly as they expel conditioned air.
+Dehumidifiers consume 300-700W; proper sizing based on room size and moisture load is essential.
+
+# ===========================================
+# MACHINE LEARNING FOR ENERGY PREDICTION
+# ===========================================
+
+Time-series features like lag values (1h, 6h, 24h) significantly improve appliance energy prediction accuracy.
+Temperature and humidity are the most important features for predicting residential energy consumption.
+Rolling averages over 3, 6, and 12 hours help capture temporal patterns in energy usage.
+Deep learning models like Neural Networks can achieve R² scores above 0.5 for appliance energy prediction.
+Random Forest and XGBoost models provide excellent baseline performance with R² scores around 0.55-0.57.
+Feature engineering (lag features, rolling statistics) can improve model R² by 15-25%.
+Occupancy patterns are strong predictors of energy consumption but often require sensor data.
+Weather forecasts can be used as features to predict future energy demand.
+Ensemble methods combining multiple models often outperform individual models.
+Cross-validation is essential to ensure energy prediction models generalize well to new data.
+Overfitting is common in energy prediction; regularization techniques (dropout, L2) help prevent it.
+Neural networks require normalized input features (StandardScaler) for optimal performance.
+Tree-based models (Random Forest, XGBoost) handle non-linear relationships without feature scaling.
+
+# ===========================================
+# DEMAND RESPONSE & GRID INTERACTION
+# ===========================================
+
+Demand response programs pay consumers to reduce electricity use during peak periods.
+Peak electricity demand typically occurs 2-7 PM on hot summer days.
+Time-of-use (TOU) rates can vary by 2-5x between peak and off-peak hours.
+Shifting flexible loads (EV charging, water heating, laundry) to off-peak hours saves money.
+Smart thermostats can participate in demand response programs automatically.
+Precooling buildings before peak hours can reduce peak demand while maintaining comfort.
+Electric vehicles can serve as battery storage for homes (V2H - Vehicle to Home).
+Grid-interactive efficient buildings (GEBs) can modulate their energy use based on grid signals.
+
+# ===========================================
+# WATER HEATING EFFICIENCY
+# ===========================================
+
+Water heating accounts for 15-25% of residential energy consumption.
+Heat pump water heaters are 2-3 times more efficient than electric resistance water heaters.
+Tankless (on-demand) water heaters eliminate standby losses but may not save energy in all cases.
+Lowering water heater temperature from 60°C to 50°C saves 6-10% on water heating costs.
+Insulating hot water pipes reduces heat loss and provides hot water faster, saving water too.
+Solar water heating can provide 50-80% of hot water needs in sunny climates.
+Drain water heat recovery systems capture heat from shower/bath water, improving efficiency by 25-30%.
+
+# ===========================================
+# BEHAVIORAL CHANGES & ENERGY AWARENESS
+# ===========================================
+
+Real-time energy feedback can reduce consumption by 5-15% through behavioral changes.
+Energy audits identify the most cost-effective improvements for each building.
+The rebound effect: efficiency improvements sometimes lead to increased usage, offsetting savings.
+Occupant behavior can cause 50-100% variation in energy use between identical buildings.
+Smart home systems can automate energy-saving behaviors (turning off lights, adjusting thermostat).
+Energy benchmarking compares building performance to peers, identifying improvement opportunities.
+ENERGY STAR Portfolio Manager is a free tool for tracking and benchmarking building energy.
+
+# ===========================================
+# COMMERCIAL & INDUSTRIAL APPLICATIONS
+# ===========================================
+
+Commercial buildings waste 30% of energy on average due to inefficient operations.
+Lighting accounts for 25-40% of commercial building electricity; LED retrofits have 2-3 year payback.
+Plug loads in offices (computers, monitors) represent 15-25% of electricity consumption.
+Data centers consume 1-2% of global electricity; efficiency improvements (PUE) are critical.
+Industrial motors account for 45% of global electricity consumption; VFDs improve efficiency by 20-50%.
+Compressed air systems are only 10-15% efficient; leak detection and repair saves significant energy.
+Process heat optimization in manufacturing can reduce energy costs by 10-30%.
+
+# ===========================================
+# CLIMATE & SEASONAL CONSIDERATIONS
+# ===========================================
+
+Heating degree days (HDD) and cooling degree days (CDD) quantify climate impact on energy needs.
+Buildings in cold climates should prioritize insulation and air sealing.
+Buildings in hot climates benefit most from cool roofs, shading, and efficient cooling.
+Mixed climates require balanced approaches optimizing both heating and cooling.
+Climate change is increasing cooling demand and decreasing heating demand in many regions.
+Passive solar design uses building orientation and thermal mass to reduce heating needs.
+Shading (trees, awnings, external blinds) can reduce cooling loads by 25-50%.
+
+# ===========================================
+# ENERGY METRICS & BENCHMARKING
+# ===========================================
+
+EUI (Energy Use Intensity) measures kWh per square meter per year, enabling building comparisons.
+Typical residential EUI ranges from 100-300 kWh/m²/year depending on climate and efficiency.
+Passive House standard requires less than 15 kWh/m²/year for heating and cooling.
+Net Zero Energy buildings produce as much energy as they consume annually.
+Carbon footprint depends on both energy consumption and the grid's generation mix.
+Scope 1 emissions are direct (on-site combustion), Scope 2 are indirect (purchased electricity).
+Life cycle assessment (LCA) considers embodied energy in materials, not just operational energy.
