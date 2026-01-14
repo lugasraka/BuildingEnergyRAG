@@ -2,6 +2,8 @@
 
 A production-ready machine learning platform for predicting residential energy consumption and providing AI-powered sustainability recommendations. Built for energy analysts, building managers, and sustainability professionals who need actionable insights from smart meter data.
 
+![EcoMindAI Demo](asset/Animation.gif)
+
 ## Problem Statement
 
 Building energy consumption accounts for approximately 40% of global energy use. Yet most building operators lack the tools to:
@@ -166,6 +168,8 @@ BuildingEnergyRAG/
 │   └── sustainability_manual.txt
 ├── dataset/               # Sample data
 │   └── energydata_complete.csv
+├── asset/                 # Images and animations
+│   └── Animation.gif
 ├── data-analysis.ipynb    # Exploratory analysis notebook
 └── test_app.py           # Unit tests
 ```
