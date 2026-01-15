@@ -1,6 +1,6 @@
 # EcomindAI: Building Energy Prediction & AI Consultant
 
-A production-ready machine learning platform for predicting residential energy consumption and providing AI-powered sustainability recommendations. Built for energy analysts, building managers, and sustainability professionals who need actionable insights from smart meter data.
+A prototype of machine learning platform for predicting residential energy consumption and providing AI-powered sustainability recommendations. Built for energy analysts, building managers, and sustainability professionals who need actionable insights from smart meter data.
 
 ![EcoMindAI Demo](asset/Animation.gif)
 
