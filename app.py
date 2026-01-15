@@ -14,6 +14,7 @@ import tf_keras as keras
 from tf_keras import layers
 import torch
 import torch.nn as nn
+import matplotlib.pyplot as plt
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
@@ -148,13 +149,42 @@ def calculate_mape(y_true, y_pred):
         return np.nan
     return np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask])) * 100
 
+def create_scatter_plot(y_true, y_pred, title, r2, rmse, mae):
+    """Generates a scatter plot of actual vs. predicted values with metrics."""
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax.scatter(y_true, y_pred, alpha=0.5, label='Predictions')
+    
+    # Add a 1:1 line for reference
+    lims = [
+        np.min([ax.get_xlim(), ax.get_ylim()]),
+        np.max([ax.get_xlim(), ax.get_ylim()]),
+    ]
+    ax.plot(lims, lims, 'r--', alpha=0.75, zorder=0, label='Ideal Fit')
+    
+    # Add metrics to the plot
+    metrics_text = (
+        f"R² = {r2:.4f}\n"
+        f"RMSE = {rmse:.2f}\n"
+        f"MAE = {mae:.2f}"
+    )
+    ax.text(0.05, 0.95, metrics_text, transform=ax.transAxes, fontsize=10,
+            verticalalignment='top', bbox=dict(boxstyle='round,pad=0.5', fc='wheat', alpha=0.5))
+
+    ax.set_xlabel("Actual Values (Wh)")
+    ax.set_ylabel("Predicted Values (Wh)")
+    ax.set_title(title)
+    ax.legend()
+    ax.grid(True)
+    fig.tight_layout()
+    return fig
+
 def load_and_train_models(file_obj):
     """
     Loads data, processes it, and trains multiple best-performing models.
     Returns comprehensive metrics including RMSE, MAE, MAPE, Train/Test R², Latency, and Cost.
     """
     if file_obj is None:
-        return None, None, None, None, None, "Please upload a CSV file."
+        return None, None, None, None, None, "Please upload a CSV file.", None, None, None, None
 
     try:
         # Load Data
@@ -180,6 +210,7 @@ def load_and_train_models(file_obj):
 
         results = []
         trained_models = {}
+        plots = {}
 
         # 1. Random Forest
         print("Training Random Forest...")
@@ -190,14 +221,23 @@ def load_and_train_models(file_obj):
 
         y_pred_rf_train = rf_model.predict(X_train)
         y_pred_rf = rf_model.predict(X_test)
+        
+        # Calculate metrics
+        rf_r2_train = r2_score(y_train, y_pred_rf_train)
+        rf_r2_test = r2_score(y_test, y_pred_rf)
+        rf_rmse = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+        rf_mae = mean_absolute_error(y_test, y_pred_rf)
+        rf_mape = calculate_mape(y_test, y_pred_rf)
+        
+        plots['rf'] = create_scatter_plot(y_test, y_pred_rf, "Random Forest: Actual vs. Predicted", rf_r2_test, rf_rmse, rf_mae)
 
         results.append({
             'Model': 'Random Forest',
-            'Train_R2': round(r2_score(y_train, y_pred_rf_train), 4),
-            'Test_R2': round(r2_score(y_test, y_pred_rf), 4),
-            'RMSE': round(np.sqrt(mean_squared_error(y_test, y_pred_rf)), 2),
-            'MAE': round(mean_absolute_error(y_test, y_pred_rf), 2),
-            'MAPE (%)': round(calculate_mape(y_test, y_pred_rf), 2),
+            'Train_R2': round(rf_r2_train, 4),
+            'Test_R2': round(rf_r2_test, 4),
+            'RMSE': round(rf_rmse, 2),
+            'MAE': round(rf_mae, 2),
+            'MAPE (%)': round(rf_mape, 2),
             'Latency (s)': round(rf_latency, 2),
             'Cost': 'Low'
         })
@@ -213,13 +253,22 @@ def load_and_train_models(file_obj):
         y_pred_xgb_train = xgb_model.predict(X_train)
         y_pred_xgb = xgb_model.predict(X_test)
 
+        # Calculate metrics
+        xgb_r2_train = r2_score(y_train, y_pred_xgb_train)
+        xgb_r2_test = r2_score(y_test, y_pred_xgb)
+        xgb_rmse = np.sqrt(mean_squared_error(y_test, y_pred_xgb))
+        xgb_mae = mean_absolute_error(y_test, y_pred_xgb)
+        xgb_mape = calculate_mape(y_test, y_pred_xgb)
+
+        plots['xgb'] = create_scatter_plot(y_test, y_pred_xgb, "XGBoost: Actual vs. Predicted", xgb_r2_test, xgb_rmse, xgb_mae)
+
         results.append({
             'Model': 'XGBoost',
-            'Train_R2': round(r2_score(y_train, y_pred_xgb_train), 4),
-            'Test_R2': round(r2_score(y_test, y_pred_xgb), 4),
-            'RMSE': round(np.sqrt(mean_squared_error(y_test, y_pred_xgb)), 2),
-            'MAE': round(mean_absolute_error(y_test, y_pred_xgb), 2),
-            'MAPE (%)': round(calculate_mape(y_test, y_pred_xgb), 2),
+            'Train_R2': round(xgb_r2_train, 4),
+            'Test_R2': round(xgb_r2_test, 4),
+            'RMSE': round(xgb_rmse, 2),
+            'MAE': round(xgb_mae, 2),
+            'MAPE (%)': round(xgb_mape, 2),
             'Latency (s)': round(xgb_latency, 2),
             'Cost': 'Low'
         })
@@ -246,13 +295,22 @@ def load_and_train_models(file_obj):
         y_pred_tf_train = tf_model.predict(X_train_scaled, verbose=0).flatten()
         y_pred_tf = tf_model.predict(X_test_scaled, verbose=0).flatten()
 
+        # Calculate metrics
+        tf_r2_train = r2_score(y_train, y_pred_tf_train)
+        tf_r2_test = r2_score(y_test, y_pred_tf)
+        tf_rmse = np.sqrt(mean_squared_error(y_test, y_pred_tf))
+        tf_mae = mean_absolute_error(y_test, y_pred_tf)
+        tf_mape = calculate_mape(y_test, y_pred_tf)
+        
+        plots['tf'] = create_scatter_plot(y_test, y_pred_tf, "TensorFlow NN: Actual vs. Predicted", tf_r2_test, tf_rmse, tf_mae)
+
         results.append({
             'Model': 'TensorFlow NN',
-            'Train_R2': round(r2_score(y_train, y_pred_tf_train), 4),
-            'Test_R2': round(r2_score(y_test, y_pred_tf), 4),
-            'RMSE': round(np.sqrt(mean_squared_error(y_test, y_pred_tf)), 2),
-            'MAE': round(mean_absolute_error(y_test, y_pred_tf), 2),
-            'MAPE (%)': round(calculate_mape(y_test, y_pred_tf), 2),
+            'Train_R2': round(tf_r2_train, 4),
+            'Test_R2': round(tf_r2_test, 4),
+            'RMSE': round(tf_rmse, 2),
+            'MAE': round(tf_mae, 2),
+            'MAPE (%)': round(tf_mape, 2),
             'Latency (s)': round(tf_latency, 2),
             'Cost': 'Medium'
         })
@@ -326,13 +384,23 @@ def load_and_train_models(file_obj):
             X_test_pt = torch.FloatTensor(X_test_scaled).to(device)
             y_pred_pt = pytorch_model(X_test_pt).cpu().numpy().flatten()
 
+        # Calculate metrics
+        pt_r2_train = r2_score(y_train, y_pred_pt_train)
+        pt_r2_test = r2_score(y_test, y_pred_pt)
+        pt_rmse = np.sqrt(mean_squared_error(y_test, y_pred_pt))
+        pt_mae = mean_absolute_error(y_test, y_pred_pt)
+        pt_mape = calculate_mape(y_test, y_pred_pt)
+
+        plots['pt'] = create_scatter_plot(y_test, y_pred_pt, "PyTorch NN: Actual vs. Predicted", pt_r2_test, pt_rmse, pt_mae)
+
+
         results.append({
             'Model': 'PyTorch NN',
-            'Train_R2': round(r2_score(y_train, y_pred_pt_train), 4),
-            'Test_R2': round(r2_score(y_test, y_pred_pt), 4),
-            'RMSE': round(np.sqrt(mean_squared_error(y_test, y_pred_pt)), 2),
-            'MAE': round(mean_absolute_error(y_test, y_pred_pt), 2),
-            'MAPE (%)': round(calculate_mape(y_test, y_pred_pt), 2),
+            'Train_R2': round(pt_r2_train, 4),
+            'Test_R2': round(pt_r2_test, 4),
+            'RMSE': round(pt_rmse, 2),
+            'MAE': round(pt_mae, 2),
+            'MAPE (%)': round(pt_mape, 2),
             'Latency (s)': round(pt_latency, 2),
             'Cost': 'Medium'
         })
@@ -345,12 +413,13 @@ def load_and_train_models(file_obj):
         status_msg = f"✅ All models trained successfully! Target: {target_col}\n"
         status_msg += f"Best Model: {best_model['Model']} (Test R²: {best_model['Test_R2']}, RMSE: {best_model['RMSE']})"
 
-        return df, trained_models, scaler, X.columns.tolist(), results_df, status_msg
+        return df, trained_models, scaler, X.columns.tolist(), results_df, status_msg, plots['rf'], plots['xgb'], plots['tf'], plots['pt']
         
     except Exception as e:
         import traceback
         error_msg = f"Error: {str(e)}\n{traceback.format_exc()}"
-        return None, None, None, None, None, error_msg
+        return None, None, None, None, None, error_msg, None, None, None, None
+
 
 def create_feature_importance_chart(models, features):
     """Create feature importance chart from Random Forest model"""
@@ -649,6 +718,16 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
         results_table = gr.Dataframe(label="Model Results Summary")
         
         results_interpretation = gr.Markdown(value="", visible=False)
+        
+        with gr.Accordion("Model Performance Scatter Plots", open=False):
+            gr.Markdown("Visualizing model accuracy by plotting actual vs. predicted values. Points close to the red dashed line indicate higher accuracy.")
+            with gr.Row():
+                rf_plot = gr.Plot(label="Random Forest Performance")
+                xgb_plot = gr.Plot(label="XGBoost Performance")
+            with gr.Row():
+                tf_plot = gr.Plot(label="TensorFlow NN Performance")
+                pt_plot = gr.Plot(label="PyTorch NN Performance")
+
 
         # State variables
         df_state = gr.State()
@@ -661,7 +740,7 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
         file_input.change(
             fn=load_and_train_models,
             inputs=file_input,
-            outputs=[df_state, models_state, scaler_state, features_state, results_state, status_text]
+            outputs=[df_state, models_state, scaler_state, features_state, results_state, status_text, rf_plot, xgb_plot, tf_plot, pt_plot]
         )
 
         # Feature importance chart (triggered when models are trained)
