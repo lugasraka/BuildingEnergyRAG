@@ -3,6 +3,7 @@ import gradio as gr
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 import time
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -424,7 +425,20 @@ def load_and_train_models(file_obj):
 def create_feature_importance_chart(models, features):
     """Create feature importance chart from Random Forest model"""
     if models is None or features is None:
-        return px.bar(title="Waiting for model training...")
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Waiting for model training. Please upload a dataset.",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14)
+        )
+        fig.update_layout(
+            title="Feature Importance",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            height=500
+        )
+        return fig
 
     try:
         # Get feature importance from Random Forest (most interpretable)
@@ -482,15 +496,56 @@ def create_feature_importance_chart(models, features):
             )
             return fig
 
-        return px.bar(title="No tree-based model available for feature importance")
+        # No tree-based model available
+        fig = go.Figure()
+        fig.add_annotation(
+            text="No tree-based model available for feature importance",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14)
+        )
+        fig.update_layout(
+            title="Feature Importance",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            height=500
+        )
+        return fig
 
     except Exception as e:
-        return px.bar(title=f"Feature Importance Error: {str(e)}")
+        fig = go.Figure()
+        fig.add_annotation(
+            text=f"Feature Importance Error: {str(e)}",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color="red")
+        )
+        fig.update_layout(
+            title="Feature Importance",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            height=500
+        )
+        return fig
 
 def create_comparison_chart(results_df):
     """Create model comparison chart"""
-    if results_df is None:
-        return px.bar(title="No model results yet")
+    if results_df is None or (isinstance(results_df, pd.DataFrame) and results_df.empty):
+        # Create empty figure with proper Plotly structure
+        fig = go.Figure()
+        fig.add_annotation(
+            text="No model results yet. Please upload a dataset to train models.",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14)
+        )
+        fig.update_layout(
+            title="Model Performance Comparison (Test R² Score)",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            height=400
+        )
+        return fig
 
     try:
         if isinstance(results_df, pd.DataFrame) and not results_df.empty:
@@ -506,10 +561,20 @@ def create_comparison_chart(results_df):
             fig.update_traces(texttemplate='%{text:.4f}', textposition='outside')
             fig.update_layout(showlegend=False, yaxis_title="R² Score")
             return fig
-        else:
-            return px.bar(title="Waiting for model results...")
     except Exception as e:
-        return px.bar(title=f"Chart Error: {str(e)}")
+        fig = go.Figure()
+        fig.add_annotation(
+            text=f"Chart Error: {str(e)}",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color="red")
+        )
+        fig.update_layout(
+            title="Model Performance Comparison",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False)
+        )
+        return fig
 
 def show_charts_interpretation(results_df):
     """Show chart interpretations after model training completes"""
