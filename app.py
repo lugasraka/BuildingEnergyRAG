@@ -624,7 +624,7 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
     **Transform your building energy data into actionable insights with state-of-the-art ML and AI.**
     
     **Key Features:**
-    - Train 4 advanced models in parallel: Random Forest, XGBoost, TensorFlow & PyTorch Neural Networks
+    - Train 4 advanced AI models in parallel: Scikit-learn (Random Forest), XGBoost, TensorFlow & PyTorch Neural Networks
     - Automatic feature engineering with temporal patterns and lag analysis
     - Interactive AI consultant powered by RAG (Retrieval-Augmented Generation) for expert energy efficiency advice
     - Comprehensive model comparison with interpretable metrics and visualizations
@@ -681,7 +681,8 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
         gr.Markdown("""
         ### Ask the AI about energy efficiency and sustainability
 
-        **Powered by:** RAG with Ollama (llama3.2) - Local inference
+        **Powered by:** RAG with Ollama (llama3.2) - Local inference. llama3.2 model provides high-quality responses, balancing performance and resource usage. 
+                    Created by Meta with optimizations for local deployments and open-source development. Obtained via [Ollama](https://ollama.com/library/llama3.2).
         """)
         
         chatbot = gr.ChatInterface(
