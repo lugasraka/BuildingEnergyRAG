@@ -43,13 +43,13 @@ Automatic feature importance visualization shows which variables drive predictio
 
 ## Target Users
 
-| Persona | Use Case |
-|---------|----------|
-| **Energy Analyst** | Compare ML models for forecasting accuracy; identify key consumption drivers |
-| **Building Manager** | Predict peak demand for load scheduling; get efficiency recommendations |
-| **Sustainability Consultant** | Rapid prototyping of energy models for client assessments |
-| **Data Scientist** | Benchmark neural network architectures against tree-based models |
-| **Researcher** | Experiment with feature engineering approaches on UCI energy dataset |
+| Persona                       | Use Case                                                                     |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| **Energy Analyst**            | Compare ML models for forecasting accuracy; identify key consumption drivers |
+| **Building Manager**          | Predict peak demand for load scheduling; get efficiency recommendations      |
+| **Sustainability Consultant** | Rapid prototyping of energy models for client assessments                    |
+| **Data Scientist**            | Benchmark neural network architectures against tree-based models             |
+| **Researcher**                | Experiment with feature engineering approaches on UCI energy dataset         |
 
 ## Quick Start
 
@@ -124,12 +124,12 @@ date,Appliances,T1,RH_1,T2,RH_2,...
 
 Typical results on UCI Energy Dataset (~19,000 samples after feature engineering):
 
-| Model | Train R² | Test R² | RMSE (Wh) | Training Time |
-|-------|----------|---------|-----------|---------------|
-| Random Forest | 0.95-0.97 | 0.55-0.58 | 70-75 | ~3s |
-| XGBoost | 0.92-0.95 | 0.56-0.60 | 68-73 | ~2s |
-| TensorFlow NN | 0.65-0.70 | 0.50-0.55 | 75-80 | ~15s |
-| PyTorch NN | 0.68-0.72 | 0.52-0.57 | 72-78 | ~10s |
+| Model         | Train R²  | Test R²   | RMSE (Wh) | Training Time |
+| ------------- | --------- | --------- | --------- | ------------- |
+| Random Forest | 0.95-0.97 | 0.55-0.58 | 70-75     | ~3s           |
+| XGBoost       | 0.92-0.95 | 0.56-0.60 | 68-73     | ~2s           |
+| TensorFlow NN | 0.65-0.70 | 0.50-0.55 | 75-80     | ~15s          |
+| PyTorch NN    | 0.68-0.72 | 0.52-0.57 | 72-78     | ~10s          |
 
 Note: Tree-based models typically outperform neural networks on this dataset size. Neural networks may excel with larger datasets or when combined with embeddings.
 
@@ -176,16 +176,16 @@ BuildingEnergyRAG/
 
 ## Technical Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| Web Framework | Gradio | Interactive UI with minimal code |
-| ML (Trees) | scikit-learn, XGBoost | Random Forest, Gradient Boosting |
-| ML (Deep Learning) | TensorFlow, PyTorch | Neural network architectures |
-| LLM Inference | Ollama | Local, private LLM hosting |
-| RAG Framework | LangChain | Retrieval-augmented generation pipeline |
-| Vector Store | FAISS | Efficient similarity search |
-| Embeddings | sentence-transformers | Text-to-vector conversion |
-| Visualization | Plotly | Interactive charts |
+| Component          | Technology            | Purpose                                 |
+| ------------------ | --------------------- | --------------------------------------- |
+| Web Framework      | Gradio                | Interactive UI with minimal code        |
+| ML (Trees)         | scikit-learn, XGBoost | Random Forest, Gradient Boosting        |
+| ML (Deep Learning) | TensorFlow, PyTorch   | Neural network architectures            |
+| LLM Inference      | Ollama                | Local, private LLM hosting              |
+| RAG Framework      | LangChain             | Retrieval-augmented generation pipeline |
+| Vector Store       | FAISS                 | Efficient similarity search             |
+| Embeddings         | sentence-transformers | Text-to-vector conversion               |
+| Visualization      | Plotly                | Interactive charts                      |
 
 ## Limitations
 
