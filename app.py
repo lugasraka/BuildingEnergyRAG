@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import gradio as gr
 import pandas as pd
 import numpy as np
@@ -20,6 +21,25 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_classic.chains import RetrievalQA
+
+# ==========================================
+# LANGFLOW CONFIGURATION
+# ==========================================
+# Set to True to use Langflow, False to use the original LangChain implementation
+USE_LANGFLOW = False
+
+# Path to exported Langflow flow JSON file
+FLOW_PATH = Path(__file__).parent / "flows" / "energy_rag_flow.json"
+
+# Try to import Langflow (optional dependency)
+LANGFLOW_AVAILABLE = False
+try:
+    from langflow.load import run_flow_from_json
+    LANGFLOW_AVAILABLE = True
+    print("✅ Langflow is available")
+except ImportError:
+    print("ℹ️ Langflow not installed. Using default LangChain RAG implementation.")
+    print("   To enable Langflow: pip install langflow")
 
 # ==========================================
 # 1. CONFIGURATION & KNOWLEDGE BASE
@@ -710,9 +730,70 @@ try:
 except Exception as e:
     print(f"RAG Setup Warning: {e}")
 
-def ask_consultant(user_query, history):
+def ask_consultant_langflow(user_query: str) -> str:
     """
-    AI consultant using RAG system
+    Query the RAG system using Langflow.
+
+    This function loads and executes a Langflow flow exported as JSON.
+    Design your flow in Langflow UI, export it, and save to flows/energy_rag_flow.json
+
+    Args:
+        user_query: User's question about energy efficiency
+
+    Returns:
+        AI-generated response based on RAG
+    """
+    if not LANGFLOW_AVAILABLE:
+        return "⚠️ Langflow is not installed. Run: pip install langflow"
+
+    if not FLOW_PATH.exists():
+        return (
+            "⚠️ Langflow flow file not found.\n\n"
+            "To set up Langflow:\n"
+            "1. Run: langflow run\n"
+            "2. Design your RAG flow in the visual editor\n"
+            "3. Export the flow to: flows/energy_rag_flow.json\n\n"
+            "Falling back to original implementation..."
+        )
+
+    try:
+        result = run_flow_from_json(
+            flow=str(FLOW_PATH),
+            input_value=user_query,
+            fallback_to_env_vars=True,
+            session_id="energy-consultant"
+        )
+
+        # Navigate the result structure to extract the response text
+        # Langflow returns a list of RunOutputs
+        if result and len(result) > 0:
+            outputs = result[0].outputs
+            if outputs and len(outputs) > 0:
+                # Try to get the message text from the result
+                message = outputs[0].results.get("message")
+                if message and hasattr(message, "text"):
+                    return message.text
+                # Fallback: try to get result directly
+                if "text" in outputs[0].results:
+                    return outputs[0].results["text"]
+                # Last resort: return string representation
+                return str(outputs[0].results)
+
+        return "No response generated. Please check your Langflow flow configuration."
+
+    except Exception as e:
+        return f"Langflow error: {str(e)}\n\nTry checking your flow configuration or switch to the original implementation."
+
+
+def ask_consultant_langchain(user_query: str) -> str:
+    """
+    AI consultant using the original LangChain RAG system.
+
+    Args:
+        user_query: User's question about energy efficiency
+
+    Returns:
+        AI-generated response based on RAG
     """
     if not rag_chain:
         return "⚠️ RAG engine not initialized. Please check console for errors."
@@ -727,6 +808,31 @@ def ask_consultant(user_query, history):
         return str(response)
     except Exception as e:
         return f"Error: {str(e)}. Try rephrasing your question."
+
+
+def ask_consultant(user_query, history):
+    """
+    AI consultant that switches between Langflow and LangChain implementations.
+
+    Toggle implementation by setting USE_LANGFLOW at the top of this file:
+    - USE_LANGFLOW = True  -> Uses Langflow (requires exported flow JSON)
+    - USE_LANGFLOW = False -> Uses original LangChain implementation (default)
+
+    Args:
+        user_query: User's question about energy efficiency
+        history: Chat history (required by Gradio ChatInterface)
+
+    Returns:
+        AI-generated response based on RAG
+    """
+    if USE_LANGFLOW and LANGFLOW_AVAILABLE:
+        response = ask_consultant_langflow(user_query)
+        # If Langflow fails due to missing flow, fall back to LangChain
+        if "Falling back to original implementation" in response:
+            return ask_consultant_langchain(user_query)
+        return response
+    else:
+        return ask_consultant_langchain(user_query)
 
 # ==========================================
 # 4. GRADIO INTERFACE
@@ -1054,11 +1160,37 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
         - **LLM**: Ollama with llama3.2 (local inference)
         - **Embeddings**: sentence-transformers/all-MiniLM-L6-v2
         - **Vector Store**: FAISS for efficient similarity search
+        - **Optional**: Langflow integration for visual RAG pipeline design
 
         ### Setup Requirements
         Ensure Ollama is running:
         ```bash
         ollama serve
+        ```
+
+        ### Langflow Integration (Optional)
+        You can use Langflow to visually design and modify the RAG pipeline:
+
+        **1. Install Langflow:**
+        ```bash
+        pip install langflow
+        ```
+
+        **2. Launch Langflow visual editor:**
+        ```bash
+        langflow run
+        ```
+
+        **3. Design your RAG flow with these components:**
+        - Chat Input → File Loader → Text Splitter → HuggingFace Embeddings
+        - FAISS Vector Store → Ollama LLM → RetrievalQA → Chat Output
+
+        **4. Export flow:**
+        - Save to `flows/energy_rag_flow.json`
+
+        **5. Enable Langflow in app.py:**
+        ```python
+        USE_LANGFLOW = True  # Change from False to True
         ```
         
         ### Supported Data Format

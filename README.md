@@ -37,6 +37,7 @@ Ask natural language questions about energy efficiency, HVAC optimization, and s
 - **Ollama** (llama3.2) for local LLM inference - no API costs, full data privacy
 - **FAISS** vector store for fast semantic search
 - **Extensible knowledge base** that can be customized for your domain
+- **Optional Langflow integration** for visual RAG pipeline design and customization
 
 ### 4. Model Interpretability
 Automatic feature importance visualization shows which variables drive predictions, enabling actionable operational decisions.
@@ -158,6 +159,105 @@ rf_model = RandomForestRegressor(n_estimators=200, max_depth=15, ...)
 xgb_model = XGBRegressor(n_estimators=200, max_depth=7, learning_rate=0.1, ...)
 ```
 
+## Langflow Integration (Optional)
+
+Langflow provides a visual drag-and-drop interface for designing and customizing RAG pipelines. This is useful for:
+- Experimenting with different RAG configurations without code changes
+- Visually debugging the retrieval pipeline
+- Rapid prototyping of new AI workflows
+
+### Setup Langflow
+
+```bash
+# Install Langflow
+pip install langflow
+
+# Pull the embedding model for Ollama
+ollama pull nomic-embed-text
+
+# Launch Langflow (in a separate terminal)
+langflow run
+```
+
+Access the visual editor at `http://localhost:7860`
+
+### Building a RAG Flow in Langflow
+
+Add these components and connect them:
+
+```
+┌─────────────┐    ┌─────────────┐    ┌──────────┐
+│    File     │───►│ Split Text  │───►│  FAISS   │
+└─────────────┘    └─────────────┘    └────┬─────┘
+                                           │
+┌───────────────────┐                      │
+│ Ollama Embeddings │──────────────────────┘
+└───────────────────┘                      │
+                                           ▼
+┌─────────────┐                      ┌───────────┐
+│ Chat Input  │─────────────────────►│  Prompt   │◄── (context from FAISS)
+└─────────────┘    (question)        └─────┬─────┘
+                                           │
+                                           ▼
+                                     ┌───────────┐
+                                     │  Ollama   │ (LLM)
+                                     └─────┬─────┘
+                                           │
+                                           ▼
+                                     ┌───────────┐
+                                     │Chat Output│
+                                     └───────────┘
+```
+
+### Component Configuration
+
+| Component           | Setting           | Value                                       |
+| ------------------- | ----------------- | ------------------------------------------- |
+| **File**            | Path              | `knowledge_base/sustainability_manual.txt`  |
+| **Split Text**      | Chunk Size        | `500`                                       |
+|                     | Chunk Overlap     | `50`                                        |
+| **Ollama Embeddings** | Model           | `nomic-embed-text`                          |
+|                     | Base URL          | `http://localhost:11434`                    |
+| **Ollama (LLM)**    | Model             | `llama3.2`                                  |
+|                     | Base URL          | `http://localhost:11434`                    |
+|                     | Temperature       | `0.7`                                       |
+| **Prompt**          | Template          | See below                                   |
+
+**Prompt Template:**
+```
+Use the following context to answer the question. Be helpful and informative.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:
+```
+
+### Export and Enable
+
+1. In Langflow, click **Export** (download icon)
+2. Save as `flows/energy_rag_flow.json`
+3. Enable in `app.py`:
+
+```python
+# Change from False to True
+USE_LANGFLOW = True
+```
+
+### Switching Between Implementations
+
+The app supports both implementations with automatic fallback:
+
+```python
+# In app.py (line 28)
+USE_LANGFLOW = False  # Use original LangChain implementation (default)
+USE_LANGFLOW = True   # Use Langflow exported flow
+```
+
+If Langflow is enabled but the flow file is missing, the app automatically falls back to the original LangChain implementation.
+
 ## Project Structure
 
 ```
@@ -168,6 +268,8 @@ BuildingEnergyRAG/
 │   └── sustainability_manual.txt
 ├── dataset/               # Sample data
 │   └── energydata_complete.csv
+├── flows/                 # Langflow exported flows (optional)
+│   └── energy_rag_flow.json
 ├── asset/                 # Images and animations
 │   └── Animation.gif
 ├── data-analysis.ipynb    # Exploratory analysis notebook
@@ -183,6 +285,7 @@ BuildingEnergyRAG/
 | ML (Deep Learning) | TensorFlow, PyTorch   | Neural network architectures            |
 | LLM Inference      | Ollama                | Local, private LLM hosting              |
 | RAG Framework      | LangChain             | Retrieval-augmented generation pipeline |
+| RAG Designer       | Langflow (optional)   | Visual drag-and-drop RAG pipeline editor|
 | Vector Store       | FAISS                 | Efficient similarity search             |
 | Embeddings         | sentence-transformers | Text-to-vector conversion               |
 | Visualization      | Plotly                | Interactive charts                      |
@@ -199,6 +302,7 @@ BuildingEnergyRAG/
 - [x] **MVP: Core ML Pipeline** - Multi-model training (RF, XGBoost, TensorFlow, PyTorch) with automated feature engineering
 - [x] **MVP: RAG-Powered Consultant** - Local LLM integration via Ollama with FAISS vector store
 - [x] **MVP: Web Interface** - Gradio-based UI for model training and AI consultation
+- [x] **Langflow Integration** - Optional visual RAG pipeline designer with toggle support
 - [ ] Hyperparameter tuning interface
 - [ ] Expanded knowledge base with domain-specific documents
 - [ ] Multi-target prediction (Appliances + HVAC + Lighting)
