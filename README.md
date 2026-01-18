@@ -211,17 +211,17 @@ Add these components and connect them:
 
 ### Component Configuration
 
-| Component           | Setting           | Value                                       |
-| ------------------- | ----------------- | ------------------------------------------- |
-| **File**            | Path              | `knowledge_base/sustainability_manual.txt`  |
-| **Split Text**      | Chunk Size        | `500`                                       |
-|                     | Chunk Overlap     | `50`                                        |
-| **Ollama Embeddings** | Model           | `nomic-embed-text`                          |
-|                     | Base URL          | `http://localhost:11434`                    |
-| **Ollama (LLM)**    | Model             | `llama3.2`                                  |
-|                     | Base URL          | `http://localhost:11434`                    |
-|                     | Temperature       | `0.7`                                       |
-| **Prompt**          | Template          | See below                                   |
+| Component             | Setting       | Value                                      |
+| --------------------- | ------------- | ------------------------------------------ |
+| **File**              | Path          | `knowledge_base/sustainability_manual.txt` |
+| **Split Text**        | Chunk Size    | `500`                                      |
+|                       | Chunk Overlap | `50`                                       |
+| **Ollama Embeddings** | Model         | `nomic-embed-text`                         |
+|                       | Base URL      | `http://localhost:11434`                   |
+| **Ollama (LLM)**      | Model         | `llama3.2`                                 |
+|                       | Base URL      | `http://localhost:11434`                   |
+|                       | Temperature   | `0.7`                                      |
+| **Prompt**            | Template      | See below                                  |
 
 **Prompt Template:**
 ```
@@ -278,17 +278,17 @@ BuildingEnergyRAG/
 
 ## Technical Stack
 
-| Component          | Technology            | Purpose                                 |
-| ------------------ | --------------------- | --------------------------------------- |
-| Web Framework      | Gradio                | Interactive UI with minimal code        |
-| ML (Trees)         | scikit-learn, XGBoost | Random Forest, Gradient Boosting        |
-| ML (Deep Learning) | TensorFlow, PyTorch   | Neural network architectures            |
-| LLM Inference      | Ollama                | Local, private LLM hosting              |
-| RAG Framework      | LangChain             | Retrieval-augmented generation pipeline |
-| RAG Designer       | Langflow (optional)   | Visual drag-and-drop RAG pipeline editor|
-| Vector Store       | FAISS                 | Efficient similarity search             |
-| Embeddings         | sentence-transformers | Text-to-vector conversion               |
-| Visualization      | Plotly                | Interactive charts                      |
+| Component          | Technology            | Purpose                                  |
+| ------------------ | --------------------- | ---------------------------------------- |
+| Web Framework      | Gradio                | Interactive UI with minimal code         |
+| ML (Trees)         | scikit-learn, XGBoost | Random Forest, Gradient Boosting         |
+| ML (Deep Learning) | TensorFlow, PyTorch   | Neural network architectures             |
+| LLM Inference      | Ollama                | Local, private LLM hosting               |
+| RAG Framework      | LangChain             | Retrieval-augmented generation pipeline  |
+| RAG Designer       | Langflow (optional)   | Visual drag-and-drop RAG pipeline editor |
+| Vector Store       | FAISS                 | Efficient similarity search              |
+| Embeddings         | sentence-transformers | Text-to-vector conversion                |
+| Visualization      | Plotly                | Interactive charts                       |
 
 ## Limitations
 
