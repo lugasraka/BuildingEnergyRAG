@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
 import tensorflow as tf
 import tf_keras as keras
 from tf_keras import layers
@@ -295,6 +296,37 @@ def load_and_train_models(file_obj):
         })
         trained_models['XGBoost'] = xgb_model
 
+        # 2b. LightGBM
+        print("Training LightGBM...")
+        start_time = time.time()
+        lgbm_model = LGBMRegressor(n_estimators=200, max_depth=7, learning_rate=0.1, random_state=42, n_jobs=-1, verbose=-1)
+        lgbm_model.fit(X_train, y_train)
+        lgbm_latency = time.time() - start_time
+
+        y_pred_lgbm_train = lgbm_model.predict(X_train)
+        y_pred_lgbm = lgbm_model.predict(X_test)
+
+        # Calculate metrics
+        lgbm_r2_train = r2_score(y_train, y_pred_lgbm_train)
+        lgbm_r2_test = r2_score(y_test, y_pred_lgbm)
+        lgbm_rmse = np.sqrt(mean_squared_error(y_test, y_pred_lgbm))
+        lgbm_mae = mean_absolute_error(y_test, y_pred_lgbm)
+        lgbm_mape = calculate_mape(y_test, y_pred_lgbm)
+
+        plots['lgbm'] = create_scatter_plot(y_test, y_pred_lgbm, "LightGBM: Actual vs. Predicted", lgbm_r2_test, lgbm_rmse, lgbm_mae)
+
+        results.append({
+            'Model': 'LightGBM',
+            'Train_R2': round(lgbm_r2_train, 4),
+            'Test_R2': round(lgbm_r2_test, 4),
+            'RMSE': round(lgbm_rmse, 2),
+            'MAE': round(lgbm_mae, 2),
+            'MAPE (%)': round(lgbm_mape, 2),
+            'Latency (s)': round(lgbm_latency, 2),
+            'Cost': 'Low'
+        })
+        trained_models['LightGBM'] = lgbm_model
+
         # 3. TensorFlow Deep NN
         print("Training TensorFlow Deep NN...")
         start_time = time.time()
@@ -434,12 +466,12 @@ def load_and_train_models(file_obj):
         status_msg = f"✅ All models trained successfully! Target: {target_col}\n"
         status_msg += f"Best Model: {best_model['Model']} (Test R²: {best_model['Test_R2']}, RMSE: {best_model['RMSE']})"
 
-        return df, trained_models, scaler, X.columns.tolist(), results_df, status_msg, plots['rf'], plots['xgb'], plots['tf'], plots['pt']
+        return df, trained_models, scaler, X.columns.tolist(), results_df, status_msg, plots['rf'], plots['xgb'], plots['lgbm'], plots['tf'], plots['pt']
         
     except Exception as e:
         import traceback
         error_msg = f"Error: {str(e)}\n{traceback.format_exc()}"
-        return None, None, None, None, None, error_msg, None, None, None, None
+        return None, None, None, None, None, error_msg, None, None, None, None, None
 
 
 def create_feature_importance_chart(models, features):
@@ -505,6 +537,33 @@ def create_feature_importance_chart(models, features):
                 y='Feature',
                 orientation='h',
                 title='Top 15 Feature Importance (XGBoost)',
+                color='Importance',
+                color_continuous_scale='Viridis'
+            )
+            fig.update_layout(
+                yaxis_title="",
+                xaxis_title="Importance Score",
+                showlegend=False,
+                height=500
+            )
+            return fig
+
+        # Fallback to LightGBM if XGBoost not available
+        elif 'LightGBM' in models:
+            lgbm_model = models['LightGBM']
+            importances = lgbm_model.feature_importances_
+
+            importance_df = pd.DataFrame({
+                'Feature': features,
+                'Importance': importances
+            }).sort_values('Importance', ascending=True).tail(15)
+
+            fig = px.bar(
+                importance_df,
+                x='Importance',
+                y='Feature',
+                orientation='h',
+                title='Top 15 Feature Importance (LightGBM)',
                 color='Importance',
                 color_continuous_scale='Viridis'
             )
@@ -864,7 +923,7 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
     **Transform your building energy data into actionable insights with state-of-the-art ML and AI.**
     
     **Key Features:**
-    - Train 4 advanced AI models in parallel: Scikit-learn (Random Forest), XGBoost, TensorFlow & PyTorch Neural Networks
+    - Train 5 advanced AI models in parallel: Scikit-learn (Random Forest), XGBoost, LightGBM, TensorFlow & PyTorch Neural Networks
     - Automatic feature engineering with temporal patterns and lag analysis
     - Interactive AI consultant powered by RAG (Retrieval-Augmented Generation) for expert energy efficiency advice
     - Comprehensive model comparison with interpretable metrics and visualizations
@@ -896,7 +955,9 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
                 rf_plot = gr.Plot(label="Random Forest Performance")
                 xgb_plot = gr.Plot(label="XGBoost Performance")
             with gr.Row():
+                lgbm_plot = gr.Plot(label="LightGBM Performance")
                 tf_plot = gr.Plot(label="TensorFlow NN Performance")
+            with gr.Row():
                 pt_plot = gr.Plot(label="PyTorch NN Performance")
 
 
@@ -911,7 +972,7 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
         file_input.change(
             fn=load_and_train_models,
             inputs=file_input,
-            outputs=[df_state, models_state, scaler_state, features_state, results_state, status_text, rf_plot, xgb_plot, tf_plot, pt_plot]
+            outputs=[df_state, models_state, scaler_state, features_state, results_state, status_text, rf_plot, xgb_plot, lgbm_plot, tf_plot, pt_plot]
         )
 
         # Feature importance chart (triggered when models are trained)
@@ -1030,7 +1091,26 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
 
         ---
 
-        #### 3. TensorFlow Neural Network
+        #### 3. LightGBM (Gradient Boosting with Histogram-Based Learning)
+        ```
+        LGBMRegressor(n_estimators=200, max_depth=7, learning_rate=0.1)
+        ```
+        | Parameter | Value | Rationale |
+        |-----------|-------|-----------|
+        | n_estimators | 200 | Sequential boosting iterations |
+        | max_depth | 7 | Shallow trees prevent overfitting in boosting |
+        | learning_rate | 0.1 | Conservative rate for better generalization |
+
+        **Why LightGBM?**
+        - Uses histogram-based algorithms for faster training (10x+ faster than XGBoost on large datasets)
+        - Leaf-wise tree growth often achieves better accuracy than level-wise
+        - Handles categorical features natively
+        - Memory-efficient with binning-based learning
+        - Excellent for large-scale tabular data problems
+
+        ---
+
+        #### 4. TensorFlow Neural Network
         ```
         Input → Dense(256) → Dropout(0.3) → Dense(128) → Dropout(0.2)
               → Dense(64) → Dropout(0.2) → Dense(32) → Dense(1)
@@ -1051,7 +1131,7 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
 
         ---
 
-        #### 4. PyTorch Neural Network (Advanced)
+        #### 5. PyTorch Neural Network (Advanced)
         ```
         Input → Linear(512) → BatchNorm → ReLU → Dropout(0.4)
               → Linear(256) → BatchNorm → ReLU → Dropout(0.3)
@@ -1148,6 +1228,7 @@ with gr.Blocks(theme=professional_theme, title="EcomindAI Energy Consultant") as
         ### Machine Learning Models
         - **Random Forest**: Ensemble tree-based model with 200 estimators
         - **XGBoost**: Gradient boosting with optimized hyperparameters
+        - **LightGBM**: Histogram-based gradient boosting with fast training
         - **TensorFlow Deep NN**: 5-layer neural network with dropout regularization
         - **PyTorch Deep NN**: Custom deep architecture with BatchNorm and advanced training
 

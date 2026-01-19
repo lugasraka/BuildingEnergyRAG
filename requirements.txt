@@ -11,6 +11,7 @@ langchain-ollama
 faiss-cpu
 nbformat>=4.2.0
 xgboost
+lightgbm
 tensorflow
 tf-keras
 torch

@@ -16,9 +16,10 @@ EcomindAI addresses these gaps with automated ML model training and a RAG-powere
 ## Key Capabilities
 
 ### 1. Automated Multi-Model Training
-Upload a CSV file and train four production-grade models simultaneously:
+Upload a CSV file and train five production-grade models simultaneously:
 - **Random Forest** (200 estimators) - Robust baseline with feature importance
 - **XGBoost** (gradient boosting) - Often best-in-class for tabular data
+- **LightGBM** (histogram-based boosting) - 10x faster training with comparable accuracy
 - **TensorFlow Neural Network** - Deep learning with dropout regularization
 - **PyTorch Neural Network** - Advanced architecture with BatchNorm and early stopping
 
@@ -113,9 +114,11 @@ date,Appliances,T1,RH_1,T2,RH_2,...
 │   ┌──────────┐    │   └──────┬──────┘   │                   │
 │   │ RF │ XGB │    │          │          │                   │
 │   ├────┼─────┤    │   ┌──────┴──────┐   │                   │
-│   │ TF │ PT  │    │   │    FAISS    │   │                   │
-│   └──────────┘    │   │ Vector Store│   │                   │
-│        ↓          │   └─────────────┘   │                   │
+│   │LGBM│ TF  │    │   │    FAISS    │   │                   │
+│   ├────┼─────┤    │   │ Vector Store│   │                   │
+│   │ PT │     │    │   └─────────────┘   │                   │
+│   └──────────┘    │          ↑          │                   │
+│        ↓          │   Knowledge Base    │                   │
 │   Evaluation &    │          ↑          │                   │
 │   Visualization   │   Knowledge Base    │                   │
 └───────────────────┴─────────────────────┴───────────────────┘
@@ -129,6 +132,7 @@ Typical results on UCI Energy Dataset (~19,000 samples after feature engineering
 | ------------- | --------- | --------- | --------- | ------------- |
 | Random Forest | 0.95-0.97 | 0.55-0.58 | 70-75     | ~3s           |
 | XGBoost       | 0.92-0.95 | 0.56-0.60 | 68-73     | ~2s           |
+| LightGBM      | 0.93-0.96 | 0.55-0.59 | 69-74     | ~0.5s         |
 | TensorFlow NN | 0.65-0.70 | 0.50-0.55 | 75-80     | ~15s          |
 | PyTorch NN    | 0.68-0.72 | 0.52-0.57 | 72-78     | ~10s          |
 
@@ -157,6 +161,9 @@ rf_model = RandomForestRegressor(n_estimators=200, max_depth=15, ...)
 
 # XGBoost
 xgb_model = XGBRegressor(n_estimators=200, max_depth=7, learning_rate=0.1, ...)
+
+# LightGBM
+lgbm_model = LGBMRegressor(n_estimators=200, max_depth=7, learning_rate=0.1, ...)
 ```
 
 ## Langflow Integration (Optional)
@@ -278,17 +285,17 @@ BuildingEnergyRAG/
 
 ## Technical Stack
 
-| Component          | Technology            | Purpose                                  |
-| ------------------ | --------------------- | ---------------------------------------- |
-| Web Framework      | Gradio                | Interactive UI with minimal code         |
-| ML (Trees)         | scikit-learn, XGBoost | Random Forest, Gradient Boosting         |
-| ML (Deep Learning) | TensorFlow, PyTorch   | Neural network architectures             |
-| LLM Inference      | Ollama                | Local, private LLM hosting               |
-| RAG Framework      | LangChain             | Retrieval-augmented generation pipeline  |
-| RAG Designer       | Langflow (optional)   | Visual drag-and-drop RAG pipeline editor |
-| Vector Store       | FAISS                 | Efficient similarity search              |
-| Embeddings         | sentence-transformers | Text-to-vector conversion                |
-| Visualization      | Plotly                | Interactive charts                       |
+| Component          | Technology                      | Purpose                                  |
+| ------------------ | ------------------------------- | ---------------------------------------- |
+| Web Framework      | Gradio                          | Interactive UI with minimal code         |
+| ML (Trees)         | scikit-learn, XGBoost, LightGBM | Random Forest, Gradient Boosting         |
+| ML (Deep Learning) | TensorFlow, PyTorch             | Neural network architectures             |
+| LLM Inference      | Ollama                          | Local, private LLM hosting               |
+| RAG Framework      | LangChain                       | Retrieval-augmented generation pipeline  |
+| RAG Designer       | Langflow (optional)             | Visual drag-and-drop RAG pipeline editor |
+| Vector Store       | FAISS                           | Efficient similarity search              |
+| Embeddings         | sentence-transformers           | Text-to-vector conversion                |
+| Visualization      | Plotly                          | Interactive charts                       |
 
 ## Limitations
 
@@ -299,10 +306,11 @@ BuildingEnergyRAG/
 
 ## Roadmap
 
-- [x] **MVP: Core ML Pipeline** - Multi-model training (RF, XGBoost, TensorFlow, PyTorch) with automated feature engineering
+- [x] **MVP: Core ML Pipeline** - Multi-model training (RF, XGBoost, LightGBM, TensorFlow, PyTorch) with automated feature engineering
 - [x] **MVP: RAG-Powered Consultant** - Local LLM integration via Ollama with FAISS vector store
 - [x] **MVP: Web Interface** - Gradio-based UI for model training and AI consultation
 - [x] **Langflow Integration** - Optional visual RAG pipeline designer with toggle support
+- [x] **LightGBM Integration** - Added histogram-based gradient boosting for faster training
 - [ ] Hyperparameter tuning interface
 - [ ] Expanded knowledge base with domain-specific documents
 - [ ] Multi-target prediction (Appliances + HVAC + Lighting)
